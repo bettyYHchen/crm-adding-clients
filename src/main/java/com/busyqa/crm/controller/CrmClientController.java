@@ -6,6 +6,7 @@ import com.busyqa.crm.message.response.ClientResponse;
 import com.busyqa.crm.services.CrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -19,8 +20,9 @@ public class CrmClientController {
     CrudService crudService;
 
     @GetMapping("/client/{username}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENT')")
     public ApiResponse<ClientResponse> getUserInfo(@PathVariable String username) {
-        return new ApiResponse<>(HttpStatus.OK.value(), "User fetched successfully.", crudService.getClientsByUserName(username));
+        return new ApiResponse<>(HttpStatus.OK.value(), "User fetched successfully.", crudService.getClientByUserName(username));
 
 
     }

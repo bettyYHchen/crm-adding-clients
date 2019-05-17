@@ -3,12 +3,15 @@ package com.busyqa.crm.services;
 import com.busyqa.crm.message.request.LoginForm;
 import com.busyqa.crm.message.request.UserRequest;
 import com.busyqa.crm.message.response.ClientResponse;
+import com.busyqa.crm.message.response.EmployeeResponse;
 import com.busyqa.crm.message.response.UserResponse;
 import com.busyqa.crm.model.user.*;
 import com.busyqa.crm.repo.ClientRepository;
+import com.busyqa.crm.repo.EmployeeRepository;
 import com.busyqa.crm.repo.PositionRepository;
 import com.busyqa.crm.repo.UserRepository;
 import com.busyqa.crm.utils.Common;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,42 +35,36 @@ public class CrudService {
     private ClientRepository clientRepository;
 
     @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
     PositionRepository positionRepository;
 
     @Autowired
     PasswordEncoder encoder;
 
-//    public List<UserResponse> getAll() {
-//
-//        List<User> users = userRepository.findAll();
-//        List<UserResponse> userResponses = new ArrayList<>();
-//
-//        for (User u: users) {
-//            List<String> strRoles = u.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
-//            userResponses.add(new UserResponse(u.getName(),u.getUsername(),
-//                    u.getEmail(),strRoles,u.getTeams(),u.isActive()));
-//        }
-//
-//        return userResponses;
-//    }
 
-    public UserResponse getUserByUserName(String username) {
-        User user = userRepository.findByUsername(username).
-                orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not find."));
-        List<String> strPositions  = user.getRolesTeams();
-        return new UserResponse(user.getName(),user.getUsername(),
-                user.getEmail(),strPositions,user.getStatus(),user.getStatusAsOfDay());
 
-    }
-
-    public ClientResponse getClientsByUserName(String username) {
+    public UserResponse getClientByUserName(String username) {
         Client client = clientRepository.findByUsername(username).
                 orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not find."));
         List<String> strPositions  = client.getRolesTeams();
-        return new ClientResponse(client.getName(),client.getUsername(),
-                client.getEmail(),strPositions,client.getStatus(),client.getStatusAsOfDay(),client.getClientField());
+        UserResponse returnVal = new ClientResponse();
+        BeanUtils.copyProperties(client,returnVal);
+        return returnVal;
+    }
+
+    public UserResponse getEmployeeByUserName(String username) {
+        Employee employee = employeeRepository.findByUsername(username).
+                orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not find."));
+        List<String> strPositions  = employee.getRolesTeams();
+        UserResponse returnVal = new EmployeeResponse();
+        BeanUtils.copyProperties(employee,returnVal);
+        return returnVal;
 
     }
+
+
 
 
 
@@ -138,12 +135,22 @@ public class CrudService {
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found with -> username or email : " + username));
 
+        List<String> strRoles = user.getRoles();
+        Boolean isEmployee = false;
+        for (String s: strRoles) {
+
+        }
+
+
         List<String> strPositions  = user.getRolesTeams();
         UserResponse userResponse = new UserResponse(user.getName(),user.getUsername(),
                 user.getEmail(),strPositions,user.getStatus(),user.getStatusAsOfDay());
         return userResponse;
 
     }
+
+
+
 
     public UserResponse update(String username, UserRequest userRequest) {
         User user = userRepository.findByUsername(username).orElseThrow(
@@ -222,49 +229,8 @@ public class CrudService {
 
         }
 
-//    public User update(User userDto) {
-//        Optional<User> user = userRepository.findById(Long.valueOf(userDto.getId()));
-//        user.get().setEmail(userDto.getEmail());
-//        user.get().setTeams(userDto.getTeams());
-//        user.get().setRoles((userDto.getRoles()));
-//        user.get().setName(userDto.getName());
-//        user.get().setUsername(userDto.getUsername());
-//        if(user.get() != null) {
-//            BeanUtils.copyProperties(userDto, user, "password");
-//            userRepository.save(user.get());
-//
-//        }
-//        return userDto;
-//    }
-
-//    public List<UserResponse> getlistWithRoles() {
-//        List<User> users = userRepository.findAllWithRoles();
-//        List<UserResponse> userResponses = new ArrayList<>();
-//        for (User u: users) {
-//            List<String> strRoles = u.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
-//            userResponses.add(new UserResponse(u.getName(),u.getUsername(),
-//                    u.getEmail(),strRoles,u.getTeams(),u.isActive()));
-//        }
-//
-//        return userResponses;
-//
-//    }
 
 
-
-//
-//        for (User u : users) {
-//            List<Long> roleIds = userRoleRepository.findAllByUserId(u.getId())
-//                    .stream().map(x -> x.getRoleId()).collect(Collectors.toList());
-//            List<String> strRoles = roleRepository.findAllById(roleIds)
-//                    .stream().map(x -> x.getName()).collect(Collectors.toList());
-//
-//            userResponses.add(new UserResponse(u.getName(),u.getUsername()
-//                    ,u.getEmail(),strRoles,u.getTeams(),u.isActive()));
-//        }
-//
-//        return userResponses;
-//    }
 
 
 }
